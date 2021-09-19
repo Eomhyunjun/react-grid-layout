@@ -119,14 +119,13 @@ Include the following stylesheets in your application:
 /node_modules/react-resizable/css/styles.css
 ```
 
-## Usage
+## 사용법
 
-Use ReactGridLayout like any other component. The following example below will
-produce a grid with three items where:
+ReactGridLayout를 다른 컴포넌트처럼 사용하세요. 아래의 예시들은 세개의 아이템들과 그리드를 만들 것입니다. 
 
-- users will not be able to drag or resize item `a`
-- item `b` will be restricted to a minimum width of 2 grid blocks and a maximum width of 4 grid blocks
-- users will be able to freely drag and resize item `c`
+- 사용자들은 아이템 'a'를 드래그하거나 사이즈를 조정할 수 없습니다.
+- item `b`는 미니멈 길이가 2 그리드 블록으로, 맥시멈 길이가 4 그리드 블럭으로 제한될 것 입니다.
+- item `c'는 자유롭게 드래그하고 리사이징이 가능합니다.
 
 ```js
 import GridLayout from 'react-grid-layout';
@@ -150,7 +149,7 @@ class MyFirstGrid extends React.Component {
 }
 ```
 
-You may also choose to set layout properties directly on the children:
+children에 직접 레이아웃 속성들을 설정할 수 있습니다. :
 
 ```js
 import GridLayout from 'react-grid-layout';
@@ -168,14 +167,14 @@ class MyFirstGrid extends React.Component {
 }
 ```
 
-### Usage without Browserify/Webpack
+### Browserify/Webpack 없이 사용
 
 A module usable in a `<script>` tag is included [here](/dist/react-grid-layout.min.js). It uses a UMD shim and
 excludes `React`, so it must be otherwise available in your application, either via RequireJS or on `window.React`.
 
-### Responsive Usage
+### Responsive 사용
 
-To make RGL responsive, use the `<ResponsiveReactGridLayout>` element:
+RGL responsive를 만들기 위해서, `<ResponsiveReactGridLayout>` 엘리먼트를 사용하세요:
 
 ```js
 import { Responsive as ResponsiveGridLayout } from 'react-grid-layout';
@@ -183,6 +182,7 @@ import { Responsive as ResponsiveGridLayout } from 'react-grid-layout';
 class MyResponsiveGrid extends React.Component {
   render() {
     // {lg: layout1, md: layout2, ...}
+    // large, medium, small ...
     const layouts = getLayoutsFromSomewhere();
     return (
       <ResponsiveGridLayout className="layout" layouts={layouts}
@@ -197,21 +197,21 @@ class MyResponsiveGrid extends React.Component {
 }
 ```
 
-When in responsive mode, you should supply at least one breakpoint via the `layouts` property.
+responsive mode에서, `layouts`속성으로 최소한 하나의 breakpoint를 제공해야 합니다.
 
-When using `layouts`, it is best to supply as many breakpoints as possible, especially the largest one.
-If the largest is provided, RGL will attempt to interpolate the rest.
+`layouts`을 사용할 때, breakpoints를 가능한 많이 제공하는 것이 제일 좋습니다, especially the largest one.
+largest가 제공되면, RGL는 나머지를 채우려고 할 것입니다.
 
-You will also need to provide a `width`, when using `<ResponsiveReactGridLayout>` it is suggested you use the HOC
-`WidthProvider` as per the instructions below.
+또한 `width`를 제공해야 합니다. `<ResponsiveReactGridLayout>`를 사용할 때
+아래의 지시를 따라서 HOC `WidthProvider`를 사용하는 것이 좋습니다.
 
-It is possible to supply default mappings via the `data-grid` property on individual
-items, so that they would be taken into account within layout interpolation.
+`data-grid` 속성으로 개별 아이템들에 기본 mappings를 제공할 수 있습니다.
+so that they would be taken into account within layout interpolation.
 
 ### Providing Grid Width
 
-Both `<ResponsiveReactGridLayout>` and `<ReactGridLayout>` take `width` to calculate
-positions on drag events. In simple cases a HOC `WidthProvider` can be used to automatically determine
+`<ResponsiveReactGridLayout>` 와 `<ReactGridLayout>` 둘 다 드래그 이벤트의 위치를 계산하기 위해서 `width`를 취한다.
+간단한 경우 HOC `WidthProvider` can be used to automatically determine
 width upon initialization and window resize events.
 
 ```js
