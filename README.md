@@ -241,11 +241,10 @@ class MyResponsiveGrid extends React.Component {
 만약 `true`면, `WidthProvider`는 children이 마운트 되기 전에 컨테이너의 width를 측정할 것 입니다.
 만약 application/component mount에 any resizing animation을 완전히 제거하고 싶다면 이것을 사용하십시오.
 
-Have a more complicated layout? `WidthProvider` [is very simple](/lib/components/WidthProvider.jsx) and only
-listens to window `'resize'` events. If you need more power and flexibility, try the
-[SizeMe React HOC](https://github.com/ctrlplusb/react-sizeme) as an alternative to WidthProvider.
+더 복잡한 레이아웃이 있나요? `WidthProvider`은 [아주 간단하고](/lib/components/WidthProvider.jsx) window `'resize'` 이벤트에만 listens합니다.
+더 강하고 유연함을 원한다면, WidthProvider 대신에 [SizeMe React HOC](https://github.com/ctrlplusb/react-sizeme)를 사용해보세요.
 
-### Grid Layout Props
+### 그리드 레이아웃 Props
 
 RGL supports the following properties (see the source for the final word on this):
 
