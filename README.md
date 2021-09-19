@@ -210,9 +210,8 @@ so that they would be taken into account within layout interpolation.
 
 ### Providing Grid Width
 
-`<ResponsiveReactGridLayout>` 와 `<ReactGridLayout>` 둘 다 드래그 이벤트의 위치를 계산하기 위해서 `width`를 취한다.
-간단한 경우 HOC `WidthProvider` can be used to automatically determine
-width upon initialization and window resize events.
+`<ResponsiveReactGridLayout>` 와 `<ReactGridLayout>` 둘 다 드래그 이벤트의 위치를 계산하기 위해서 `width`를 취합니다.
+간단한 경우 HOC `WidthProvider`를 사용해서 width의 초기화와 window resize 이벤트를 자동적으로 결정할 수 있습니다.
 
 ```js
 import { Responsive, WidthProvider } from 'react-grid-layout';
@@ -236,11 +235,11 @@ class MyResponsiveGrid extends React.Component {
 }
 ```
 
-This allows you to easily replace `WidthProvider` with your own Provider HOC if you need more sophisticated logic.
+이 예시는 더 정교한 로직을 원한다면 `WidthProvider`를 your own Provider HOC로 쉽게 바꿀 수 있게 해줍니다.
 
-`WidthProvider` accepts a single prop, `measureBeforeMount`. If `true`, `WidthProvider` will measure the
-container's width before mounting children. Use this if you'd like to completely eliminate any resizing animation
-on application/component mount.
+`WidthProvider`는 `measureBeforeMount` 한개만 prop로 받습니다.
+만약 `true`면, `WidthProvider`는 children이 마운트 되기 전에 컨테이너의 width를 측정할 것 입니다.
+만약 application/component mount에 any resizing animation을 완전히 제거하고 싶다면 이것을 사용하십시오.
 
 Have a more complicated layout? `WidthProvider` [is very simple](/lib/components/WidthProvider.jsx) and only
 listens to window `'resize'` events. If you need more power and flexibility, try the
