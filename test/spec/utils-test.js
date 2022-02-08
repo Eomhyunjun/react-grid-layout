@@ -8,13 +8,17 @@ import {
   fastRGLPropsEqual,
   moveElement,
   sortLayoutItemsByRowCol,
-  validateLayout
+  validateLayout,
+  compactType
 } from "../../lib/utils";
 import {
   calcGridColWidth,
-  calcGridItemPosition
+  calcGridItemPosition,
+  calcWH,
+  calcXY
 } from "../../lib/calculateUtils";
 import isEqual from "lodash.isequal";
+import deepFreeze from "./../util/deepFreeze";
 
 describe("bottom", () => {
   it("Handles an empty layout as input", () => {
@@ -73,14 +77,14 @@ describe("validateLayout", () => {
       { i: "2", x: 1, y: 2, w: 1, h: 1 }
     ]);
   });
-  it("Throws errors on invalid input", () => {
+  it("Throws errors on h not as a number", () => {
     expect(() => {
       validateLayout([
         { i: "1", x: 0, y: 1, w: 1, h: 1 },
         // $FlowFixMe: dynamic check
         { i: "2", x: 1, y: 2, w: 1 }
       ]);
-    }).toThrowError(/layout\[1\]\.h must be a number!/i);
+    }).toThrowError(/layout\[1]\.h must be a number!/i);
   });
 });
 
@@ -123,8 +127,8 @@ describe("moveElement", () => {
         layoutItem,
         1,
         2, // x, y
-        true,
-        true, // isUserAction, preventCollision
+        true, // isUserAction
+        true, // preventCollision
         null,
         2 // compactType, cols
       )
@@ -146,8 +150,8 @@ describe("moveElement", () => {
         layoutItem,
         1,
         0, // x, y
-        true,
-        false, // isUserAction, preventCollision
+        true, // isUserAction
+        false, //  preventCollision
         "vertical",
         2 // compactType, cols
       )
@@ -172,8 +176,8 @@ describe("moveElement", () => {
         itemA,
         0,
         1, // x, y
-        true,
-        false, // isUserAction, preventCollision
+        true, // isUserAction
+        false, //  preventCollision
         "vertical",
         10 // compactType, cols
       )
@@ -199,8 +203,8 @@ describe("moveElement", () => {
         itemA,
         0,
         2, // x, y
-        true,
-        false, // isUserAction, preventCollision
+        true, // isUserAction
+        false, //  preventCollision
         "vertical",
         10 // compactType, cols
       )
@@ -226,8 +230,8 @@ describe("moveElement", () => {
         itemA,
         1,
         0, // x, y
-        true,
-        false, // isUserAction, preventCollision
+        true, // isUserAction
+        false, //  preventCollision
         "vertical",
         2 // compactType, cols
       )
@@ -253,8 +257,8 @@ describe("moveElement", () => {
         itemA,
         2,
         0, // x, y
-        true,
-        false, // isUserAction, preventCollision
+        true, // isUserAction
+        false, //  preventCollision
         "horizontal",
         10 // compactType, cols
       )
@@ -283,8 +287,8 @@ describe("moveElement", () => {
         itemB,
         1,
         0, // x, y
-        true,
-        false, // isUserAction, preventCollision
+        true, // isUserAction
+        false, //  preventCollision
         "vertical",
         4 // compactType, cols
       )
@@ -315,8 +319,8 @@ describe("moveElement", () => {
         itemB,
         1,
         0, // x, y
-        true,
-        false, // isUserAction, preventCollision
+        true, // isUserAction
+        false, //  preventCollision
         "vertical",
         4 // compactType, cols
       )
@@ -324,6 +328,34 @@ describe("moveElement", () => {
       expect.objectContaining({ x: 0, y: 2, w: 2, h: 1, i: "A" }),
       expect.objectContaining({ x: 0, y: 3, w: 1, h: 1, i: "B" }),
       expect.objectContaining({ x: 1, y: 0, w: 1, h: 2, i: "C" })
+    ]);
+  });
+
+  it("Prevent collision", () => {
+    const layout = [
+      { x: 0, y: 0, w: 1, h: 10, i: "A" },
+      { x: 0, y: 10, w: 1, h: 1, i: "B" },
+      { x: 0, y: 11, w: 1, h: 1, i: "C" }
+    ];
+    // Move A down by 2. This will collide with B and C so
+    // the layout should be unchanged
+    const itemA = layout[0];
+    const modifiedLayout = moveElement(
+      layout,
+      itemA,
+      0, // x
+      2, // y
+      true, // isUserAction
+      true, // preventCollision
+      null, // compactType
+      10 // cols
+    );
+    expect(Object.is(layout, modifiedLayout)).toBe(true);
+
+    expect(layout).toEqual([
+      expect.objectContaining({ x: 0, y: 0, w: 1, h: 10, i: "A" }),
+      expect.objectContaining({ x: 0, y: 10, w: 1, h: 1, i: "B" }),
+      expect.objectContaining({ x: 0, y: 11, w: 1, h: 1, i: "C" })
     ]);
   });
 
@@ -341,8 +373,8 @@ describe("moveElement", () => {
         itemA,
         0,
         2, // x, y
-        true,
-        true, // isUserAction, preventCollision
+        true, // isUserAction
+        false, // preventCollision
         null,
         10, // compactType, cols
         true // allowOverlap
@@ -352,6 +384,28 @@ describe("moveElement", () => {
       expect.objectContaining({ x: 0, y: 10, w: 1, h: 1, i: "B" }),
       expect.objectContaining({ x: 0, y: 11, w: 1, h: 1, i: "C" })
     ]);
+  });
+
+  it("Layout is cloned when using allowOverlap (#1606)", () => {
+    const layout = [
+      { x: 0, y: 0, w: 1, h: 10, i: "A" },
+      { x: 0, y: 10, w: 1, h: 1, i: "B" },
+      { x: 0, y: 11, w: 1, h: 1, i: "C" }
+    ];
+    // Move A down by 2. Both B and C should remain in same position
+    const itemA = layout[0];
+    const modifiedLayout = moveElement(
+      layout,
+      itemA,
+      0,
+      2, // x, y
+      true, // isUserAction
+      false, // preventCollision
+      null,
+      10, // compactType, cols
+      true // allowOverlap
+    );
+    expect(Object.is(layout, modifiedLayout)).toBe(false);
   });
 });
 
@@ -556,5 +610,89 @@ describe("fastRGLPropsEqual", () => {
       somethingElse: { w: 1, h: 2, i: 3 }
     };
     expect(fastRGLPropsEqual(props1, props2, isEqual)).toEqual(true);
+  });
+});
+
+describe("calcWH", () => {
+  const mockPositionParams = {
+    margin: [0, 0],
+    containerPadding: [0, 0],
+    containerWidth: 400,
+    cols: 4,
+    rowHeight: 200,
+    maxRows: 3
+  };
+  it("return { w: 1, h: 1 }", () => {
+    const res = calcWH(mockPositionParams, 100, 200, 1, 1);
+    expect(JSON.stringify(res)).toBe(JSON.stringify({ w: 1, h: 1 }));
+  });
+  it("return { w: 2, h: 1 }", () => {
+    const res = calcWH(mockPositionParams, 200, 200, 1, 1);
+    expect(JSON.stringify(res)).toBe(JSON.stringify({ w: 2, h: 1 }));
+  });
+  it("return { w: 1, h: 2 }", () => {
+    const res = calcWH(mockPositionParams, 100, 400, 1, 1);
+    expect(JSON.stringify(res)).toBe(JSON.stringify({ w: 1, h: 2 }));
+  });
+});
+
+describe("calcXY", () => {
+  const mockPositionParams = {
+    margin: [0, 0],
+    containerPadding: [0, 0],
+    containerWidth: 500,
+    cols: 4,
+    rowHeight: 100,
+    maxRows: 3
+  };
+
+  it("return {x:0, y:0}", () => {
+    const TOP = 10;
+    const LEFT = 10;
+    const W = 300;
+    const H = 100;
+    const res = calcXY(mockPositionParams, TOP, LEFT, W, H);
+    expect(JSON.stringify(res)).toBe(JSON.stringify({ x: 0, y: 0 }));
+  });
+  it("return {x:1, y:0}", () => {
+    const TOP = 0;
+    const LEFT = 100;
+    const W = 0;
+    const H = 0;
+    const res = calcXY(mockPositionParams, TOP, LEFT, W, H);
+    expect(JSON.stringify(res)).toBe(JSON.stringify({ x: 1, y: 0 }));
+  });
+  it("return {x:0, y:1}", () => {
+    const TOP = 110;
+    const LEFT = 0;
+    const W = 0;
+    const H = 0;
+    const res = calcXY(mockPositionParams, TOP, LEFT, W, H);
+    expect(JSON.stringify(res)).toBe(JSON.stringify({ x: 0, y: 1 }));
+  });
+});
+
+describe("compactType", () => {
+  const mockProps = {
+    verticalCompact: false,
+    compactType: "horizontal"
+  };
+  it("returns null when verticalCompact is false", () => {
+    expect(compactType(mockProps)).toBe(null);
+  });
+  it("returns compactType value when verticalCompact is true", () => {
+    expect(compactType({ ...mockProps, verticalCompact: true })).toBe(
+      "horizontal"
+    );
+  });
+});
+
+describe("deepFreeze", () => {
+  it("smoke test", () => {
+    const deepFreezeResult = deepFreeze(
+      { a: "a", b: { b: "c" } },
+      { get: true, set: true }
+    );
+    expect(JSON.stringify(deepFreezeResult)).toBe('{"a":"a","b":{"b":"c"}}');
   });
 });

@@ -5,6 +5,7 @@ import React from "react";
 import _ from "lodash";
 import TestUtils from "react-dom/test-utils";
 import ReactGridLayout from "../../lib/ReactGridLayout";
+import GridItem from "../../lib/GridItem";
 import ResponsiveReactGridLayout from "../../lib/ResponsiveReactGridLayout";
 import BasicLayout from "../examples/1-basic";
 import ShowcaseLayout from "../examples/0-showcase";
@@ -31,66 +32,249 @@ describe("Lifecycle tests", function () {
     global.Math.random.mockRestore();
   });
 
+  describe("<GridItem >", () => {
+    const mockProps = {
+      children: <div>test child</div>,
+      cols: 12,
+      containerWidth: 1200,
+      rowHeight: 300,
+      margin: [0, 0],
+      maxRows: 4,
+      containerPadding: [0, 0],
+      i: "0",
+      // These are all in grid units
+      x: 0,
+      y: 0,
+      w: 100,
+      h: 100,
+      isDraggable: false,
+      isResizable: false,
+      isBounded: false,
+      useCSSTransforms: false
+    };
+    it("Basic Render", () => {
+      const wrapper = mount(<GridItem {...mockProps} />);
+      expect(wrapper).toMatchSnapshot();
+    });
+
+    describe("optional min/max dimension props log err", () => {
+      describe("minW", () => {
+        const mockError = jest.spyOn(console, "error");
+        afterEach(() => {
+          jest.clearAllMocks();
+        });
+
+        it("2x when string, not number", () => {
+          // $FlowIgnore
+          mount(<GridItem {...mockProps} minW={"apple"} />);
+          expect(mockError).toHaveBeenCalledTimes(2);
+        });
+        it("1 err when larger than w prop", () => {
+          mount(<GridItem {...mockProps} minW={400} />);
+          expect(mockError).toHaveBeenCalledTimes(1);
+        });
+      });
+
+      describe("maxW", () => {
+        const mockError = jest.spyOn(console, "error");
+        afterEach(() => {
+          jest.clearAllMocks();
+        });
+
+        it("1x when string, not number", () => {
+          // $FlowIgnore
+          mount(<GridItem {...mockProps} maxW={"apple"} />);
+          expect(mockError).toHaveBeenCalledTimes(1);
+        });
+        it("1x err when smaller than w prop", () => {
+          mount(<GridItem {...mockProps} w={4} maxW={2} />);
+          expect(mockError).toHaveBeenCalledTimes(1);
+        });
+      });
+
+      describe("minH", () => {
+        const mockError = jest.spyOn(console, "error");
+        afterEach(() => {
+          jest.clearAllMocks();
+        });
+
+        it("2x when string, not number", () => {
+          // $FlowIgnore
+          mount(<GridItem {...mockProps} minH={"apple"} />);
+          expect(mockError).toHaveBeenCalledTimes(2);
+        });
+        it("1x when larger than h prop", () => {
+          mount(<GridItem {...mockProps} minH={200} />);
+          expect(mockError).toHaveBeenCalledTimes(1);
+        });
+      });
+
+      describe("maxH", () => {
+        const mockError = jest.spyOn(console, "error");
+        afterEach(() => {
+          jest.clearAllMocks();
+        });
+
+        it("1x when string, not number", () => {
+          // $FlowIgnore
+          mount(<GridItem {...mockProps} maxH={"apple"} />);
+          expect(mockError).toHaveBeenCalledTimes(1);
+        });
+        it("1x when smaller than h prop", () => {
+          mount(<GridItem {...mockProps} h={3} maxH={2} />);
+          expect(mockError).toHaveBeenCalledTimes(1);
+        });
+      });
+    });
+
+    describe("onDrag", () => {
+      it("calls onDragStart prop when droppingPosition prop has expected content", () => {
+        const mockFn = jest.fn();
+
+        mount(
+          <GridItem
+            {...mockProps}
+            // $FlowIgnore
+            droppingPosition={{ left: 1, top: 1, e: {} }}
+            onDragStart={mockFn}
+          />
+        );
+        expect(mockFn).toHaveBeenCalledTimes(1);
+      });
+
+      it("throws err when calling onDrag without state set to dragging ", () => {
+        const componentInstance = mount(
+          <GridItem {...mockProps} onDrag={() => {}} />
+        ).instance();
+
+        expect(() => {
+          // $FlowIgnore
+          componentInstance.onDrag({}, {});
+        }).toThrow("onDrag called before onDragStart.");
+      });
+
+      it("calls onDragStart prop callback fn", () => {
+        const mockFn = jest.fn();
+
+        const componentInstance = mount(
+          <GridItem
+            {...mockProps}
+            // $FlowIgnore
+            droppingPosition={{ left: 1, top: 1, e: {} }}
+            onDragStart={mockFn}
+          />
+        ).instance();
+        // $FlowIgnore
+        componentInstance.onDrag({}, () => {});
+        expect(mockFn).toHaveBeenCalledTimes(1);
+      });
+
+      it("calls onDrag prop callback fn", () => {
+        const mockOnDragStartCallback = jest.fn();
+        const mockOnDrag = jest.fn();
+        const renderedItem = mount(
+          <GridItem
+            {...mockProps}
+            // $FlowIgnore
+            isDraggable={true}
+            isBounded={true}
+            onDragStart={mockOnDragStartCallback}
+            onDrag={mockOnDrag}
+          />
+        );
+        TestUtils.act(() => {
+          renderedItem.setState({ dragging: true });
+          renderedItem.setProps({
+            droppingPosition: { left: 700, top: 300, e: {} }
+          });
+        });
+        expect(mockOnDrag).toHaveBeenCalledTimes(1);
+      });
+    });
+  });
+
   describe("<ReactGridLayout>", function () {
     it("Basic Render", async function () {
       const wrapper = mount(<BasicLayout />);
       expect(wrapper).toMatchSnapshot();
     });
 
-    describe('data-grid', () => {
+    describe("data-grid", () => {
       it("Creates layout based on properties", async function () {
         const wrapper = mount(
-          <ReactGridLayout className="layout" cols={12} rowHeight={30} width={1200}>
-            <div key="a" data-grid={{x: 0, y: 0, w: 1, h: 2, static: true}}>a</div>
-            <div key="b" data-grid={{x: 1, y: 0, w: 3, h: 2, minW: 2, maxW: 4}}>b</div>
-            <div key="c" data-grid={{x: 4, y: 0, w: 1, h: 2}}>c</div>
+          <ReactGridLayout
+            className="layout"
+            cols={12}
+            rowHeight={30}
+            width={1200}
+          >
+            <div key="a" data-grid={{ x: 0, y: 0, w: 1, h: 2, static: true }}>
+              a
+            </div>
+            <div
+              key="b"
+              data-grid={{ x: 1, y: 0, w: 3, h: 2, minW: 2, maxW: 4 }}
+            >
+              b
+            </div>
+            <div key="c" data-grid={{ x: 4, y: 0, w: 1, h: 2 }}>
+              c
+            </div>
           </ReactGridLayout>
         );
         expect(wrapper).toMatchSnapshot();
         expect(wrapper.state().layout).toMatchObject([
           {
-            "h": 2,
-            "i": "a",
-            "static": true,
-            "w": 1,
-            "x": 0,
-            "y": 0,
+            h: 2,
+            i: "a",
+            static: true,
+            w: 1,
+            x: 0,
+            y: 0
           },
           {
-            "h": 2,
-            "i": "b",
-            "static": false,
-            "w": 3,
-            "x": 1,
-            "y": 0,
+            h: 2,
+            i: "b",
+            static: false,
+            w: 3,
+            x: 1,
+            y: 0
           },
           {
-            "h": 2,
-            "i": "c",
-            "static": false,
-            "w": 1,
-            "x": 4,
-            "y": 0,
-          },
+            h: 2,
+            i: "c",
+            static: false,
+            w: 1,
+            x: 4,
+            y: 0
+          }
         ]);
       });
 
       it("Null items in list", async function () {
         const wrapper = mount(
-          // $FlowIgnore
-          <ReactGridLayout className="layout" cols={12} rowHeight={30} width={1200}>
-            <div key="a" data-grid={{x: 0, y: 0, w: 1, h: 2, static: true}}>a</div>
+          <ReactGridLayout
+            className="layout"
+            cols={12}
+            rowHeight={30}
+            width={1200}
+            // $FlowIgnore
+          >
+            <div key="a" data-grid={{ x: 0, y: 0, w: 1, h: 2, static: true }}>
+              a
+            </div>
             {false}
             {null}
-            <div key="c" data-grid={{x: 4, y: 0, w: 1, h: 2}}>c</div>
+            <div key="c" data-grid={{ x: 4, y: 0, w: 1, h: 2 }}>
+              c
+            </div>
           </ReactGridLayout>
         );
 
         expect(wrapper).toMatchSnapshot();
         expect(wrapper.state().layout).toHaveLength(2); // Only two truthy items
       });
-    })
-
+    });
 
     describe("WidthProvider", () => {
       it("Renders with WidthProvider", async function () {
