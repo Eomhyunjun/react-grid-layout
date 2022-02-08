@@ -215,14 +215,14 @@ class MyResponsiveGrid extends React.Component {
 
 responsive mode에서, `layouts`속성으로 최소한 하나의 breakpoint를 제공해야 합니다.
 
-`layouts`을 사용할 때, breakpoints를 가능한 많이 제공하는 것이 제일 좋습니다, especially the largest one.
+`layouts`을 사용할 때, breakpoints를 가능한 많이 제공하는 것이 제일 좋습니다, 특히 largest가(lg)의 경우 그렇습니다.
 largest가 제공되면, RGL는 나머지를 채우려고 할 것입니다.
 
 또한 `width`를 제공해야 합니다. `<ResponsiveReactGridLayout>`를 사용할 때
 아래의 지시를 따라서 HOC `WidthProvider`를 사용하는 것이 좋습니다.
 
+개별 아이템들이 레이아웃 내에 있다고 여겨지기 위해서(so that they would be taken into account within layout interpolation.)
 `data-grid` 속성으로 개별 아이템들에 기본 mappings를 제공할 수 있습니다.
-so that they would be taken into account within layout interpolation.
 
 ### Providing Grid Width
 
@@ -254,7 +254,7 @@ class MyResponsiveGrid extends React.Component {
 }
 ```
 
-이 예시는 더 정교한 로직을 원한다면 `WidthProvider`를 your own Provider HOC로 쉽게 바꿀 수 있게 해줍니다.
+이 예시는 더 정교한 로직을 원한다면 `WidthProvider`를 본인이 자체 제작한 HOC로 쉽게 바꿀 수 있게 해줍니다.
 
 `WidthProvider`는 `measureBeforeMount` 한개만 prop로 받습니다.
 만약 `true`면, `WidthProvider`는 children이 마운트 되기 전에 컨테이너의 width를 측정할 것 입니다.
