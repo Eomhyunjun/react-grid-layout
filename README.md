@@ -265,7 +265,7 @@ class MyResponsiveGrid extends React.Component {
 
 ### 그리드 레이아웃 Props
 
-RGL supports the following properties (see the source for the final word on this):
+RGL는 아래의 properties들을 지원합니다. (see the source for the final word on this):
 
 ```js
 //
@@ -420,8 +420,8 @@ innerRef: {current: null | HTMLDivElement},
 
 ### Responsive Grid Layout Props
 
-The responsive grid layout can be used instead. It supports all of the props above, excepting `layout`.
-The new properties and changes are:
+The responsive grid layout이 대신 사용될수도 있다. 이는 `layout`을 제외한 전반적인 Props를 지원한다.
+새 properties와 변화는 :
 
 ```js
 // {name: pxVal}, e.g. {lg: 1200, md: 996, sm: 768, xs: 480}
@@ -462,22 +462,16 @@ onWidthChange: (containerWidth: number, margin: [number, number], cols: number, 
 
 ### Grid Item Props
 
-RGL supports the following properties on grid items or layout items. When initializing a grid,
-build a layout array (as in the first example above), or attach this object as the `data-grid` property
-to each of your child elements (as in the second example).
+RGL은 그리드 항목 또는 레이아웃 항목에서 다음 속성을 지원합니다. 그리드를 초기화할 때, 
+레이아웃 배열을 빌드하거나(위의 첫번째 예시와 같이), 요소의 각각의 property에 'data-grid'와 같은 객체를 집어넣습니다 (두번째 예시와 같이).
 
-Note that if a grid item is provided but incomplete (missing one of `x, y, w, or h`), an error
-will be thrown so you can correct your layout.
+그리드 항목이 제공되지만 불완전한 경우('x, y, w 또는 h' 중 하나가 누락됨) 레이아웃을 수정할 수 있도록 오류가 발생합니다.
 
-If no properties are provided for a grid item, one will be generated with a width and height of `1`.
+그리드 항목에 대한 속성이 제공되지 않으면 너비 및 높이가 '1'인 항목이 생성됩니다.
 
-You can set minimums and maximums for each dimension. This is for resizing; it of course has no effect if resizing
-is disabled. Errors will be thrown if your mins and maxes overlap incorrectly, or your initial dimensions
-are out of range.
+각 차원의 최소값과 최대값을 설정할 수 있습니다. 이것은 크기 조정용이며, 크기를 사용하지 않도록 설정해도 영향을 미치지 않습니다. 최소값과 최대값이 잘못 겹치거나 초기 치수가 범위를 벗어나면 오류가 발생합니다.
 
-Any `<GridItem>` properties defined directly will take precedence over globally-set options. For
-example, if the layout has the property `isDraggable: false`, but the grid item has the prop `isDraggable: true`, the item
-will be draggable, even if the item is marked `static: true`.
+직접 정의된 '<GridItem>' 속성은 전역 설정 옵션보다 우선합니다. 예를 들어 레이아웃에 'isDragable: false' 속성이 있지만 그리드 항목에 'isDragable: true'라는 속성이 있으면 항목이 'static: true'로 표시된 경우에도 끌어다 놓을 수 있습니다.
 
 ```js
 {
